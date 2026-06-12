@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FIFA World Cup 2026 — Group Prediction</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --gold: #FFD86B;
+    --gold-deep: #E8B93C;
+    --gold-glow: rgba(255,216,107,0.45);
+    --navy: #070d24;
+    --white: #f8f9fc;
+    --gray: #9aa7c7;
+    --red: #ff6b6b;
+    --green-ok: #3ddc97;
+    --card: rgba(255,255,255,0.06);
+    --card-border: rgba(255,255,255,0.11);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Outfit', 'Noto Kufi Arabic', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ═══════ EPIC ANIMATED BACKGROUND ═══════ */
+  .bg {
+    position: fixed; inset: 0; z-index: -5;
+    background: linear-gradient(225deg, #1a0f3d, #0a1a4a, #07203a, #0d0a33, #1a0f3d);
+    background-size: 400% 400%;
+    animation: bgshift 16s ease infinite;
+  }
+  @keyframes bgshift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  /* aurora glows */
+  .aurora {
+    position: fixed; inset: 0; z-index: -4; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 45% at 15% 5%, rgba(255,60,120,0.22), transparent 65%),
+      radial-gradient(ellipse 55% 40% at 85% 12%, rgba(0,220,190,0.20), transparent 65%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(124,108,255,0.25), transparent 65%),
+      radial-gradient(ellipse 40% 30% at 70% 50%, rgba(255,200,60,0.10), transparent 65%);
+    animation: aurorapulse 9s ease-in-out infinite alternate;
+  }
+  @keyframes aurorapulse {
+    0%   { opacity: 0.75; transform: scale(1); }
+    100% { opacity: 1;    transform: scale(1.06); }
+  }
+  /* sweeping stadium spotlights */
+  .spot {
+    position: fixed; top: -25vh; z-index: -3;
+    width: 32vw; height: 150vh;
+    background: linear-gradient(180deg, rgba(255,255,255,0.13), rgba(255,255,255,0.015) 70%, transparent);
+    clip-path: polygon(42% 0, 58% 0, 100% 100%, 0% 100%);
+    transform-origin: top center;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+  .spot1 { left: 4vw;  animation: sweepA 11s ease-in-out infinite alternate; }
+  .spot2 { right: 4vw; animation: sweepB 13s ease-in-out infinite alternate; }
+  @keyframes sweepA { 0% { transform: rotate(-22deg); } 100% { transform: rotate(16deg); } }
+  @keyframes sweepB { 0% { transform: rotate(20deg); }  100% { transform: rotate(-18deg); } }
+
+  /* floating flags layer */
+  #flagfield { position: fixed; inset: 0; z-index: -2; pointer-events: none; overflow: hidden; }
+  .fflag {
+    position: absolute;
+    bottom: -70px;
+    animation: flagrise linear infinite;
+    opacity: 0;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  }
+  @keyframes flagrise {
+    0%   { transform: translateY(0) rotate(-12deg) scale(1); opacity: 0; }
+    8%   { opacity: var(--fo, 0.35); }
+    50%  { transform: translateY(-55vh) rotate(10deg) scale(1.08); }
+    92%  { opacity: var(--fo, 0.35); }
+    100% { transform: translateY(-115vh) rotate(-8deg) scale(0.95); opacity: 0; }
+  }
+  /* twinkling sparkles */
+  .spark {
+    position: fixed; z-index: -2;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #fff;
+    pointer-events: none;
+    animation: twinkle ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.4); }
+    50%      { opacity: 0.85; transform: scale(1.3); box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+  }
+  /* pitch glow at bottom */
+  .pitch {
+    position: fixed; left: 0; right: 0; bottom: 0; height: 22vh; z-index: -3;
+    background: linear-gradient(180deg, transparent, rgba(20,180,110,0.18) 60%, rgba(20,200,120,0.3));
+    pointer-events: none;
+  }
+  .pitch::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0 70px, rgba(255,255,255,0.04) 70px 140px);
+  }
+
+  /* ═══════ FLAG MARQUEE RIBBONS ═══════ */
+  .marquee {
+    overflow: hidden;
+    white-space: nowrap;
+    padding: 9px 0;
+    background: rgba(255,255,255,0.04);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .marquee-track {
+    display: inline-block;
+    font-size: 24px;
+    letter-spacing: 14px;
+    animation: scrollL 38s linear infinite;
+  }
+  .marquee.rev .marquee-track { animation: scrollR 44s linear infinite; }
+  @keyframes scrollL { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  @keyframes scrollR { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
+
+  /* ═══════ HERO ═══════ */
+  .hero { text-align: center; padding: 46px 20px 34px; position: relative; }
+  .trophy {
+    font-size: 66px;
+    display: inline-block;
+    animation: float 3.2s ease-in-out infinite;
+    filter: drop-shadow(0 10px 34px var(--gold-glow)) drop-shadow(0 0 60px rgba(255,216,107,0.3));
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
+    50%      { transform: translateY(-14px) rotate(4deg) scale(1.05); }
+  }
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 9vw, 84px);
+    letter-spacing: 7px;
+    line-height: 1.0;
+    margin-top: 12px;
+    background: linear-gradient(110deg, #fff 15%, var(--gold) 35%, #ffb347 50%, #fff 65%, var(--gold) 88%);
+    background-size: 250% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 4s linear infinite;
+    filter: drop-shadow(0 4px 24px rgba(255,180,71,0.35));
+  }
+  @keyframes shine { to { background-position: 250% center; } }
+  .hero .yr {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(26px, 5vw, 42px);
+    letter-spacing: 16px;
+    margin-top: 4px;
+    background: linear-gradient(90deg, #ff5e8a, #ffb347, #3ddc97, #4dabff, #c66cff);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 6s linear infinite;
+    font-weight: 400;
+  }
+  .hero-ar {
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 16.5px;
+    color: var(--gray);
+    margin-top: 14px;
+    direction: rtl;
+  }
+  .prize-pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-top: 22px;
+    background: linear-gradient(135deg, var(--gold-deep), var(--gold), #fff3c9, var(--gold));
+    background-size: 250% auto;
+    color: #2a1d00;
+    font-weight: 900;
+    font-size: 16px;
+    padding: 13px 32px;
+    border-radius: 44px;
+    letter-spacing: 0.4px;
+    box-shadow: 0 10px 40px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,0.7);
+    animation: pulse-gold 2.4s ease-in-out infinite, shine 5s linear infinite;
+  }
+  @keyframes pulse-gold {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.05); box-shadow: 0 12px 56px rgba(255,216,107,0.75), inset 0 1px 0 rgba(255,255,255,0.7); }
+  }
+  .host-row { margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .host-flag {
+    font-size: 30px;
+    animation: hostbob 2.2s ease-in-out infinite;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+  }
+  .host-flag:nth-child(2) { animation-delay: 0.25s; }
+  .host-flag:nth-child(3) { animation-delay: 0.5s; }
+  @keyframes hostbob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-7px); }
+  }
+  .host-lbl { width: 100%; font-size: 12px; color: var(--gray); letter-spacing: 4px; margin-top: 6px; font-weight: 600; }
+
+  /* ═══════ NAV ═══════ */
+  .nav { display: flex; justify-content: center; padding: 8px 16px 30px; position: sticky; top: 8px; z-index: 10; }
+  .nav-inner {
+    display: flex; gap: 6px;
+    background: rgba(10,16,40,0.8);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--card-border);
+    padding: 6px;
+    border-radius: 16px;
+    box-shadow: 0 12px 44px rgba(0,0,0,0.45);
+  }
+  .nav-btn {
+    background: transparent; border: none;
+    color: var(--gray);
+    padding: 12px 28px;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 700;
+    transition: all 0.25s;
+  }
+  .nav-btn:hover { color: var(--white); transform: translateY(-1px); }
+  .nav-btn.active {
+    background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+    color: #2a1d00;
+    font-weight: 800;
+    box-shadow: 0 5px 22px var(--gold-glow);
+  }
+
+  .main { max-width: 920px; margin: 0 auto; padding: 6px 16px 80px; position: relative; z-index: 1; }
+
+  .sec-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 5px;
+    margin-bottom: 22px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .sec-title .dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 16px var(--gold), 0 0 32px var(--gold-glow);
+    animation: dotpulse 1.8s ease-in-out infinite;
+  }
+  @keyframes dotpulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.35)} }
+  .sec-title::after { content: ''; flex: 1; height: 2px; background: linear-gradient(90deg, rgba(255,216,107,0.6), rgba(255,94,138,0.3), transparent); border-radius: 2px; }
+
+  /* ═══════ BOARD ═══════ */
+  .board {
+    background: var(--card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .bh {
+    display: grid;
+    grid-template-columns: 58px 150px 1fr 1fr 1fr;
+    padding: 15px 22px;
+    background: linear-gradient(90deg, rgba(255,216,107,0.1), rgba(255,94,138,0.06), rgba(77,171,255,0.06));
+    border-bottom: 1px solid var(--card-border);
+    font-size: 11px; font-weight: 800;
+    letter-spacing: 2.2px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .br {
+    display: grid;
+    grid-template-columns: 58px 150px 1fr 1fr 1fr;
+    padding: 17px 22px;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s;
+    animation: rise 0.55s ease both;
+  }
+  .br:nth-child(2){animation-delay:.05s} .br:nth-child(3){animation-delay:.1s}
+  .br:nth-child(4){animation-delay:.15s} .br:nth-child(5){animation-delay:.2s}
+  .br:nth-child(6){animation-delay:.25s} .br:nth-child(7){animation-delay:.3s}
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .br:last-child { border-bottom: none; }
+  .br:hover { background: rgba(255,255,255,0.055); }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 17px;
+    color: #fff;
+    box-shadow: 0 5px 16px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+    transition: transform 0.2s;
+  }
+  .br:hover .avatar { transform: scale(1.1) rotate(-4deg); }
+  .av0 { background: linear-gradient(135deg,#7c6cff,#5a4bd8); }
+  .av1 { background: linear-gradient(135deg,#ff5e8a,#e0356a); }
+  .av2 { background: linear-gradient(135deg,#19c3a6,#0e9d85); }
+  .av3 { background: linear-gradient(135deg,#ffa94d,#f07c2e); }
+  .av4 { background: linear-gradient(135deg,#4dabff,#2a7de0); }
+  .av5 { background: linear-gradient(135deg,#c66cff,#9b3fe0); }
+  .pname { font-weight: 800; font-size: 15.5px; }
+  .par { font-size: 11.5px; color: var(--gray); font-family: 'Noto Kufi Arabic'; direction: rtl; margin-top: 1px; }
+  .pick-val {
+    font-size: 13.5px; font-weight: 600;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 9px;
+    padding: 6px 13px;
+    display: inline-block;
+    transition: all 0.2s;
+  }
+  .br:hover .pick-val { border-color: rgba(255,216,107,0.45); background: rgba(255,216,107,0.08); transform: translateY(-1px); }
+  .pick-empty { color: rgba(255,255,255,0.22); font-style: italic; font-size: 12.5px; }
+
+  /* ═══════ RULE CARDS ═══════ */
+  .rules { margin-top: 28px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .rule-card {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 22px;
+    transition: all 0.28s;
+    position: relative;
+    overflow: hidden;
+  }
+  .rule-card::after {
+    content: '';
+    position: absolute; top: 0; left: -80%;
+    width: 60%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,0.07), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.6s;
+  }
+  .rule-card:hover::after { left: 130%; }
+  .rule-card:hover { transform: translateY(-6px); border-color: rgba(255,216,107,0.4); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+  .rule-card .ic { font-size: 32px; margin-bottom: 10px; display: inline-block; animation: hostbob 2.6s ease-in-out infinite; }
+  .rule-card .t { font-weight: 800; font-size: 15px; margin-bottom: 6px; }
+  .rule-card .d { font-size: 12.5px; color: var(--gray); line-height: 1.7; }
+  .rule-card .ar { font-family: 'Noto Kufi Arabic'; direction: rtl; display: block; margin-top: 7px; font-size: 12px; }
+
+  /* ═══════ LOGIN ═══════ */
+  .login {
+    max-width: 470px;
+    margin: 0 auto;
+    background: var(--card);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--card-border);
+    border-radius: 26px;
+    padding: 42px 34px;
+    text-align: center;
+    box-shadow: 0 28px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    animation: rise 0.5s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .login::before {
+    content: '';
+    position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+    width: 240px; height: 130px;
+    background: radial-gradient(ellipse, var(--gold-glow), transparent 70%);
+    pointer-events: none;
+  }
+  .login .lock { font-size: 44px; filter: drop-shadow(0 5px 20px var(--gold-glow)); display: inline-block; animation: hostbob 2.4s ease-in-out infinite; }
+  .login h2 { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 6px; margin-top: 10px; }
+  .login-sub { color: var(--gray); font-size: 13.5px; margin: 8px 0 28px; line-height: 1.7; }
+  .pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+  .pbtn {
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.11);
+    color: var(--white);
+    padding: 14px 8px;
+    border-radius: 13px;
+    cursor: pointer;
+    font-size: 14.5px;
+    font-family: inherit;
+    font-weight: 700;
+    transition: all 0.22s;
+    line-height: 1.4;
+  }
+  .pbtn:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: 0 10px 26px rgba(0,0,0,0.35); }
+  .pbtn.sel {
+    border-color: var(--gold);
+    background: rgba(255,216,107,0.13);
+    color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(255,216,107,0.18), 0 10px 26px rgba(0,0,0,0.35);
+  }
+  .pbtn .ar-n { font-size: 11px; color: var(--gray); font-family: 'Noto Kufi Arabic'; font-weight: 400; }
+  .pbtn.sel .ar-n { color: var(--gold-deep); }
+  .crow { display: flex; gap: 10px; }
+  .cinput {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border: 1.5px solid rgba(255,255,255,0.13);
+    color: var(--white);
+    padding: 14px;
+    border-radius: 13px;
+    font-size: 19px;
+    font-family: inherit;
+    letter-spacing: 7px;
+    text-align: center;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .cinput:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(255,216,107,0.16); }
+  .cinput::placeholder { letter-spacing: 1px; font-size: 12.5px; color: rgba(255,255,255,0.22); }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-deep), var(--gold));
+    color: #2a1d00;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 13px;
+    font-size: 15.5px;
+    font-weight: 900;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 26px var(--gold-glow);
+  }
+  .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 14px 36px rgba(255,216,107,0.6); }
+  .btn-gold:active { transform: translateY(0); }
+  .err { color: var(--red); font-size: 13px; margin-top: 12px; min-height: 18px; font-weight: 600; }
+
+  /* ═══════ PICKS FORM ═══════ */
+  .ph { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+  .ph h2 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 5px; }
+  .ph-sub { font-size: 13.5px; color: var(--gray); margin-top: 4px; font-family: 'Noto Kufi Arabic'; direction: rtl; }
+  .btn-out {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.13);
+    color: var(--gray);
+    padding: 10px 20px;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 700;
+    transition: all 0.2s;
+  }
+  .btn-out:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
+  .note {
+    background: linear-gradient(135deg, rgba(255,216,107,0.13), rgba(255,94,138,0.07));
+    border: 1px solid rgba(255,216,107,0.26);
+    border-radius: 15px;
+    padding: 15px 19px;
+    font-size: 13.5px;
+    color: var(--gold);
+    margin-bottom: 24px;
+    line-height: 1.7;
+  }
+  .note .ar { font-family: 'Noto Kufi Arabic'; direction: rtl; display: block; color: var(--gold-deep); font-size: 12.5px; }
+  .pcard {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--card-border);
+    border-radius: 19px;
+    padding: 22px;
+    margin-bottom: 16px;
+    transition: all 0.26s;
+    position: relative;
+    overflow: hidden;
+    animation: rise 0.5s ease both;
+  }
+  .pcard:nth-of-type(2){animation-delay:.08s} .pcard:nth-of-type(3){animation-delay:.16s}
+  .pcard::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; }
+  .pcard.c1::before { background: linear-gradient(180deg,#FFD86B,#E8B93C); box-shadow: 2px 0 14px rgba(255,216,107,0.4); }
+  .pcard.c2::before { background: linear-gradient(180deg,#e3e9f5,#9aa7c7); box-shadow: 2px 0 14px rgba(200,210,230,0.3); }
+  .pcard.c3::before { background: linear-gradient(180deg,#f0a868,#c4763a); box-shadow: 2px 0 14px rgba(230,150,80,0.3); }
+  .pcard:hover { transform: translateY(-4px); border-color: rgba(255,216,107,0.35); box-shadow: 0 18px 46px rgba(0,0,0,0.4); }
+  .plbl { display: flex; align-items: center; gap: 13px; margin-bottom: 14px; }
+  .plbl .ic { font-size: 32px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.45)); }
+  .plbl strong { font-size: 16.5px; font-weight: 800; }
+  .plbl .ar-lbl { font-size: 12px; color: var(--gray); font-family: 'Noto Kufi Arabic'; direction: rtl; margin-top: 1px; }
+  .tsel {
+    width: 100%;
+    background: rgba(0,0,0,0.42);
+    border: 1.5px solid rgba(255,255,255,0.13);
+    color: var(--white);
+    padding: 14px 17px;
+    border-radius: 13px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23FFD86B' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 17px center;
+    padding-right: 44px;
+    transition: all 0.2s;
+  }
+  .tsel:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(255,216,107,0.14); }
+  .tsel option { background: #101e42; }
+  .save-row { display: flex; align-items: center; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+  .save-note { font-size: 12.5px; color: var(--gray); }
+  .ok { color: var(--green-ok); font-size: 14px; margin-top: 10px; min-height: 18px; font-weight: 700; }
+  .warn { color: var(--red); font-size: 14px; margin-top: 10px; min-height: 18px; font-weight: 700; }
+
+  /* confetti */
+  .confetti { position: fixed; top: -14px; font-size: 18px; z-index: 50; pointer-events: none; animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(112vh) rotate(680deg); opacity: 0.15; } }
+
+  .footer {
+    text-align: center;
+    padding: 26px 16px 48px;
+    color: rgba(255,255,255,0.3);
+    font-size: 12px;
+    letter-spacing: 2px;
+    font-weight: 600;
+  }
+  .footer .ball { display: inline-block; animation: spin 4s linear infinite; font-size: 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media(max-width:600px){
+    .bh, .br { grid-template-columns: 48px 105px 1fr; padding-left: 14px; padding-right: 14px; }
+    .col2, .col3 { display: none; }
+    .hero { padding-top: 34px; }
+    .marquee-track { font-size: 20px; letter-spacing: 10px; }
+    .spot { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    #flagfield, .spark { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="aurora"></div>
+<div class="spot spot1"></div>
+<div class="spot spot2"></div>
+<div class="pitch"></div>
+<div id="flagfield"></div>
+
+<!-- top flag ribbon -->
+<div class="marquee"><div class="marquee-track" id="mq1"></div></div>
+
+<div class="hero">
+  <div class="trophy">🏆</div>
+  <h1>FIFA WORLD CUP</h1>
+  <div class="yr">2 0 2 6</div>
+  <div class="hero-ar">من سيرفع الكأس؟ توقّع واربح · Predict the podium &amp; win</div>
+  <br>
+  <div class="prize-pill">🥇 50 KWD PRIZE · الجائزة ٥٠ دينار 🥇</div>
+  <div class="host-row">
+    <span class="host-flag">🇺🇸</span><span class="host-flag">🇲🇽</span><span class="host-flag">🇨🇦</span>
+    <div class="host-lbl">UNITED 2026 · NORTH AMERICA</div>
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <button class="nav-btn active" id="btn-board" onclick="showTab('board')">📊 Predictions · التوقعات</button>
+    <button class="nav-btn" id="btn-picks" onclick="showTab('picks')">✏️ My Picks · توقعاتي</button>
+  </div>
+</div>
+
+<div class="main">
+  <div id="tab-board"></div>
+  <div id="tab-picks" style="display:none;"></div>
+</div>
+
+<!-- bottom flag ribbon -->
+<div class="marquee rev"><div class="marquee-track" id="mq2"></div></div>
+
+<div class="footer"><span class="ball">⚽</span> THE GROUP OF SIX · WORLD CUP 2026 PREDICTION CHALLENGE <span class="ball">⚽</span></div>
+
+<script>
+const PLAYERS = [
+  { name:"Almunther", ar:"المنذر",  code:"ALM26" },
+  { name:"Heba",      ar:"هبة",     code:"HEB26" },
+  { name:"Mohammed",  ar:"محمد",    code:"MOH26" },
+  { name:"Wael",      ar:"وائل",    code:"WAE26" },
+  { name:"Rana",      ar:"رنا",     code:"RAN26" },
+  { name:"Abdullah",  ar:"عبدالله", code:"ABD26" },
+];
+
+const TEAMS = [
+  "🇦🇷 Argentina","🇧🇷 Brazil","🇫🇷 France","🇪🇸 Spain","🏴󠁧󠁢󠁥󠁮󠁧󠁿 England",
+  "🇩🇪 Germany","🇵🇹 Portugal","🇳🇱 Netherlands","🇧🇪 Belgium","🇺🇾 Uruguay",
+  "🇺🇸 USA","🇲🇽 Mexico","🇨🇦 Canada","🇯🇵 Japan","🇰🇷 South Korea",
+  "🇲🇦 Morocco","🇸🇳 Senegal","🇳🇬 Nigeria","🇪🇬 Egypt","🇸🇦 Saudi Arabia",
+  "🇮🇷 Iran","🇦🇺 Australia","🇨🇭 Switzerland","🇩🇰 Denmark","🇵🇱 Poland",
+  "🇭🇷 Croatia","🇸🇪 Sweden","🇨🇴 Colombia","🇨🇱 Chile","🇵🇪 Peru",
+  "🇷🇸 Serbia","🇨🇿 Czech Republic","🇹🇷 Turkey","🇺🇦 Ukraine","🇬🇭 Ghana",
+  "🇨🇲 Cameroon","🇨🇮 Ivory Coast","🇹🇳 Tunisia","🇶🇦 Qatar","🇮🇶 Iraq","🇰🇼 Kuwait"
+];
+
+const FLAG_EMOJIS = ["🇦🇷","🇧🇷","🇫🇷","🇪🇸","🇩🇪","🇵🇹","🇳🇱","🇧🇪","🇺🇾","🇺🇸","🇲🇽","🇨🇦","🇯🇵","🇰🇷","🇲🇦","🇸🇳","🇪🇬","🇸🇦","🇰🇼","🇶🇦","🇮🇶","🇹🇳","🇹🇷","🇭🇷","🇨🇴","🏴󠁧󠁢󠁥󠁮󠁧󠁿","🇮🇷","🇦🇺","🇨🇭","🇩🇰"];
+
+let current = null;
+let allPicks = {};
+
+/* ── Build the festive layers ── */
+function buildFlagRibbons() {
+  const seq = FLAG_EMOJIS.join(' ') + ' ';
+  // duplicate twice for seamless loop
+  document.getElementById('mq1').textContent = seq + seq;
+  document.getElementById('mq2').textContent = seq + seq;
+}
+function buildFlagField() {
+  const field = document.getElementById('flagfield');
+  for (let i = 0; i < 16; i++) {
+    const f = document.createElement('div');
+    f.className = 'fflag';
+    f.textContent = FLAG_EMOJIS[Math.floor(Math.random() * FLAG_EMOJIS.length)];
+    f.style.left = Math.random() * 96 + 'vw';
+    f.style.fontSize = (22 + Math.random() * 30) + 'px';
+    f.style.setProperty('--fo', (0.18 + Math.random() * 0.3).toFixed(2));
+    f.style.animationDuration = (14 + Math.random() * 16) + 's';
+    f.style.animationDelay = (-Math.random() * 24) + 's';
+    field.appendChild(f);
+  }
+}
+function buildSparks() {
+  for (let i = 0; i < 22; i++) {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 75 + 'vh';
+    s.style.animationDuration = (1.6 + Math.random() * 2.8) + 's';
+    s.style.animationDelay = (Math.random() * 3) + 's';
+    document.body.appendChild(s);
+  }
+}
+
+/* ── Storage ── */
+async function load() {
+  for (const p of PLAYERS) {
+    try {
+      const r = await window.storage.get('wc26_' + p.name);
+      if (r && r.value) allPicks[p.name] = JSON.parse(r.value);
+    } catch(e) {}
+  }
+}
+async function save(name, data) {
+  try {
+    await window.storage.set('wc26_' + name, JSON.stringify(data));
+    allPicks[name] = data;
+    return true;
+  } catch(e) { return false; }
+}
+
+/* ── Tabs ── */
+function showTab(t) {
+  document.getElementById('tab-board').style.display = t==='board'?'block':'none';
+  document.getElementById('tab-picks').style.display = t==='picks'?'block':'none';
+  document.getElementById('btn-board').classList.toggle('active', t==='board');
+  document.getElementById('btn-picks').classList.toggle('active', t==='picks');
+  if (t==='board') renderBoard();
+  if (t==='picks') renderPicksPage();
+}
+
+/* ── Board ── */
+function renderBoard() {
+  let rows = PLAYERS.map((p,i) => {
+    const pk = allPicks[p.name];
+    const cell = v => v ? `<span class="pick-val">${v}</span>` : '<span class="pick-empty">No pick yet</span>';
+    return `<div class="br">
+      <div><div class="avatar av${i}">${p.name[0]}</div></div>
+      <div><div class="pname">${p.name}</div><div class="par">${p.ar}</div></div>
+      <div>${cell(pk?.p1)}</div>
+      <div class="col2">${cell(pk?.p2)}</div>
+      <div class="col3">${cell(pk?.p3)}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-board').innerHTML = `
+    <div class="sec-title"><span class="dot"></span>ALL PREDICTIONS</div>
+    <div class="board">
+      <div class="bh">
+        <div></div>
+        <div>Player</div>
+        <div>🥇 Champion</div>
+        <div class="col2">🥈 Runner-Up</div>
+        <div class="col3">🥉 Third</div>
+      </div>
+      ${rows}
+    </div>
+    <div class="rules">
+      <div class="rule-card">
+        <div class="ic">🎯</div>
+        <div class="t">Hit all three</div>
+        <div class="d">Correctly predict 1st, 2nd <em>and</em> 3rd place to win the <strong style="color:var(--gold)">50 KWD</strong> prize.
+          <span class="ar">يجب تخمين المراكز الثلاثة الأولى بشكل صحيح للفوز</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="ic">🗓️</div>
+        <div class="t">Friday updates</div>
+        <div class="d">Picks can be changed every Friday until the World Cup final kicks off.
+          <span class="ar">يمكن تعديل التوقعات كل جمعة حتى المباراة النهائية</span>
+        </div>
+      </div>
+      <div class="rule-card">
+        <div class="ic">👁️</div>
+        <div class="t">Everything is public</div>
+        <div class="d">All six players can see each other's predictions at any time.
+          <span class="ar">جميع التوقعات مرئية لكل المشاركين الستة</span>
+        </div>
+      </div>
+    </div>`;
+}
+
+/* ── Login ── */
+function renderPicksPage() {
+  if (current) { renderForm(); return; }
+  let sel = null;
+  const btns = PLAYERS.map(p =>
+    `<button class="pbtn" id="pb-${p.name}" onclick="selP('${p.name}')">${p.name}<br><span class="ar-n">${p.ar}</span></button>`
+  ).join('');
+
+  document.getElementById('tab-picks').innerHTML = `
+    <div class="login">
+      <div class="lock">🔐</div>
+      <h2>PLAYER LOGIN</h2>
+      <div class="login-sub">Select your name, then enter your secret code.<br><span style="font-family:'Noto Kufi Arabic';direction:rtl">اختر اسمك وأدخل الرمز السري الخاص بك</span></div>
+      <div class="pgrid">${btns}</div>
+      <div class="crow">
+        <input class="cinput" id="ci" type="password" maxlength="6" placeholder="Your code"/>
+        <button class="btn-gold" onclick="doLogin()">Enter ➔</button>
+      </div>
+      <div class="err" id="lerr"></div>
+    </div>`;
+
+  window.selP = function(n) {
+    sel = n;
+    document.querySelectorAll('.pbtn').forEach(b => b.classList.remove('sel'));
+    document.getElementById('pb-' + n).classList.add('sel');
+    document.getElementById('ci').focus();
+  };
+  window.doLogin = function() {
+    const code = (document.getElementById('ci').value || '').trim().toUpperCase();
+    const err  = document.getElementById('lerr');
+    if (!sel) { err.textContent = 'Please select your name first · اختر اسمك أولاً'; return; }
+    const p = PLAYERS.find(x => x.name === sel);
+    if (p && p.code === code) { current = p; err.textContent=''; renderForm(); }
+    else { err.textContent = '❌ Wrong code · الرمز غير صحيح'; document.getElementById('ci').value=''; }
+  };
+  document.getElementById('ci')?.addEventListener('keydown', e => { if(e.key==='Enter') window.doLogin(); });
+}
+
+/* ── Form ── */
+function renderForm() {
+  const pk = allPicks[current.name] || {};
+  const opts = `<option value="">— Select a team · اختر فريقاً —</option>` + TEAMS.map(t=>`<option value="${t}">${t}</option>`).join('');
+  document.getElementById('tab-picks').innerHTML = `
+    <div class="ph">
+      <div>
+        <h2>✏️ MY PICKS</h2>
+        <div class="ph-sub">مرحباً ${current.ar} · Welcome, ${current.name}</div>
+      </div>
+      <button class="btn-out" onclick="doOut()">Logout ↩</button>
+    </div>
+    <div class="note">
+      🗓️ <strong>Picks can be updated every Friday</strong> until the World Cup final.
+      <span class="ar">يمكنك تعديل توقعاتك كل جمعة حتى نهائي كأس العالم</span>
+    </div>
+    <div class="pcard c1">
+      <div class="plbl"><span class="ic">🥇</span><div><strong>Champion — 1st Place</strong><div class="ar-lbl">البطل · المركز الأول</div></div></div>
+      <select class="tsel" id="p1">${opts}</select>
+    </div>
+    <div class="pcard c2">
+      <div class="plbl"><span class="ic">🥈</span><div><strong>Runner-Up — 2nd Place</strong><div class="ar-lbl">الوصيف · المركز الثاني</div></div></div>
+      <select class="tsel" id="p2">${opts}</select>
+    </div>
+    <div class="pcard c3">
+      <div class="plbl"><span class="ic">🥉</span><div><strong>Third Place</strong><div class="ar-lbl">المركز الثالث</div></div></div>
+      <select class="tsel" id="p3">${opts}</select>
+    </div>
+    <div class="save-row">
+      <button class="btn-gold" onclick="doSave()">💾 Save Picks · حفظ التوقعات</button>
+      <div class="save-note">Visible to all six players · مرئية لجميع المشاركين</div>
+    </div>
+    <div id="smsg" class="ok"></div>`;
+
+  if (pk.p1) document.getElementById('p1').value = pk.p1;
+  if (pk.p2) document.getElementById('p2').value = pk.p2;
+  if (pk.p3) document.getElementById('p3').value = pk.p3;
+
+  window.doSave = async function() {
+    const p1=document.getElementById('p1').value,
+          p2=document.getElementById('p2').value,
+          p3=document.getElementById('p3').value;
+    const msg=document.getElementById('smsg');
+    msg.className='warn';
+    if(!p1||!p2||!p3){ msg.textContent='⚠️ Please select all 3 places · اختر المراكز الثلاثة'; return; }
+    if(new Set([p1,p2,p3]).size<3){ msg.textContent='⚠️ Pick 3 different teams · اختر ثلاثة فرق مختلفة'; return; }
+    msg.className='ok'; msg.textContent='Saving…';
+    const ok = await save(current.name,{p1,p2,p3});
+    if(ok){
+      msg.textContent='✅ Picks saved! · تم الحفظ بنجاح 🎉';
+      celebrate();
+      setTimeout(()=>msg.textContent='',3500);
+    }
+    else { msg.className='warn'; msg.textContent='❌ Save failed, try again · فشل الحفظ'; }
+  };
+  window.doOut = function() {
+    current=null;
+    document.getElementById('tab-picks').innerHTML='';
+    renderPicksPage();
+  };
+}
+
+/* ── Confetti ── */
+function celebrate() {
+  const emojis = ['🎉','⚽','🏆','✨','🥇','🎊','🇰🇼','⭐'];
+  for (let i=0; i<34; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.animationDuration = (1.9 + Math.random()*2.4) + 's';
+    c.style.fontSize = (15 + Math.random()*18) + 'px';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 4800);
+  }
+}
+
+/* ── Init ── */
+buildFlagRibbons();
+buildFlagField();
+buildSparks();
+(async ()=>{ await load(); renderBoard(); })();
+</script>
+</body>
+</html>
